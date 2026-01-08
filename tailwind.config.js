@@ -3,6 +3,7 @@
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -11,7 +12,7 @@ module.exports = {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
         'pink-500': 'var(--pink-500)',
-        'pink-600': 'var(--pink-600)',  // DÜZELTİLDİ
+        'pink-600': 'var(--pink-600)',
         'gray-900': 'var(--gray-900)',
         'black': 'var(--black)',
       },
