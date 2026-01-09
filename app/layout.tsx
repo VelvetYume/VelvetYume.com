@@ -1,4 +1,4 @@
-// app/layout.tsx - YAŞ DOĞRULAMA KALDIRILMIŞ GÜNCEL HALİ
+// app/layout.tsx - ANIMASYON COMPONENT'E TAŞINDI
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
@@ -39,6 +39,9 @@ export default function RootLayout({
     '/images/bg7.jpg',
     '/images/bg8.jpg',
     '/images/bg9.jpg',
+    '/images/bg10.jpg',
+    '/images/bg11.jpg',
+    '/images/bg12.jpg',
     '/images/bg16.jpg',
     '/images/bg18.jpg',
     '/images/bg19.jpg',
@@ -64,11 +67,8 @@ export default function RootLayout({
           relative
         `}
       >
-        {/* 🔥 Animated Background */}
+        {/* 🔥 Animated Background - Tüm efekt burada */}
         <AnimatedBackground images={bgImages} />
-        
-        {/* 🔥 Overlay */}
-        <div className="fixed inset-0 z-0 bg-gradient-to-br from-black/70 via-[#0a0015]/80 to-[#1a0033]/70 pointer-events-none" />
         
         {/* 🎨 Navbar */}
         <Navbar />

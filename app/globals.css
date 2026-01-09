@@ -1,4 +1,4 @@
-/* app/globals.css - %100 ÇALIŞAN HALİ */
+/* app/globals.css - TEMİZ HALİ (ANİMASYON KALDIRILDI) */
 
 @tailwind base;
 @tailwind components;
@@ -53,24 +53,25 @@ nav, footer {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #e600e6 0%, #7c3aed 100%);
 }
+
 /* ✅ ARAMA KUTUSU VE SELECT DÜZELTMESİ */
 input[type="text"], select {
-  background-color: rgba(0, 0, 0, 0.5) !important; /* Siyah şeffaf arka plan */
-  color: white !important; /* Yazı rengi beyaz */
-  border: 2px solid rgba(255, 255, 255, 0.2) !important; /* Kenarlık */
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 input[type="text"]::placeholder {
-  color: rgba(255, 255, 255, 0.6) !important; /* Placeholder rengi */
+  color: rgba(255, 255, 255, 0.6) !important;
   opacity: 1;
 }
 
 input[type="text"]:focus, select:focus {
-  border-color: rgba(236, 72, 153, 0.5) !important; /* Focus'ta pembe kenarlık */
+  border-color: rgba(236, 72, 153, 0.5) !important;
   outline: none !important;
 }
 
-/* Select ok ikonunu düzelt (varsayılan beyaz ok görünmüyor) */
+/* Select ok ikonunu düzelt */
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -80,4 +81,14 @@ select {
   background-repeat: no-repeat;
   background-size: 12px;
   padding-right: 3rem !important;
+}
+@keyframes slow-pan {
+  0% { background-position: 50% 50%; }
+  50% { background-position: 55% 55%; }
+  100% { background-position: 50% 50%; }
+}
+
+.animate-slow-pan {
+  animation: slow-pan 60s ease-in-out infinite;
+  background-size: 120% 120%; /* Hafif zoom efekti */
 }

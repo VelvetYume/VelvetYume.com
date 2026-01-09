@@ -1,4 +1,3 @@
-// app/AnimatedBackground.tsx - ÜZERİNDEN SMOOTH GEÇİŞ
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,77 +7,60 @@ interface AnimatedBackgroundProps {
 }
 
 export default function AnimatedBackground({ images }: AnimatedBackgroundProps) {
-  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
-  const [currentImage, setCurrentImage] = useState(0);
-  const [nextImage, setNextImage] = useState(1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [index, setIndex] = useState(0);
 
-  // 🔥 RESİMLERİ ÖNCEDEN YÜKLE
   useEffect(() => {
-    const loadImages = async () => {
-      const loaded = await Promise.all(
-        images.map((image) => {
-          return new Promise<boolean>((resolve) => {
-            const img = new Image();
-            img.src = image;
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-          });
-        })
-      );
-      setImagesLoaded(loaded);
-    };
-    loadImages();
-  }, [images]);
+    if (images.length <= 1) return;
 
-  // 🔥 ÜZERİNDEN GEÇİŞ ANIMASYONU
-  useEffect(() => {
     const interval = setInterval(() => {
-      const nextIdx = (currentImage + 1) % images.length;
-      setNextImage(nextIdx);
-      setIsTransitioning(true);
-
-      // 1.5 saniye sonra geçiş tamamla
-      setTimeout(() => {
-        setCurrentImage(nextIdx);
-        setIsTransitioning(false);
-      }, 1750);
-    }, 3500); // 6 saniyede bir geçiş
+      setIndex((i) => (i + 1) % images.length);
+    }, 8000);
 
     return () => clearInterval(interval);
-  }, [currentImage, images.length]);
+  }, [images.length]);
 
   return (
-    <div className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed overflow-hidden">
-      
-      {/* 🔥 ALT KATMAN - MEVCUT RESİM (HER ZAMAN GÖRÜNÜR) */}
+    <div className="fixed inset-0 z-0 overflow-hidden bg-black">
+      {images.map((img, i) => {
+        const active = i === index;
+
+        return (
+          <div
+            key={i}
+            className="
+              absolute inset-0 bg-cover bg-center bg-no-repeat
+              transition-opacity duration-[3600ms]
+              ease-[cubic-bezier(0.33,0,0.1,1)]
+            "
+            style={{
+              backgroundImage: `url(${img})`,
+              opacity: active ? 1 : 0,
+
+              /* SADECE YENİ RESİM YAKIN GELİR */
+              transform: active ? 'scale(1)' : 'scale(1.06)',
+              transitionProperty: 'opacity, transform',
+
+              /* GPU SABİTLEME */
+              willChange: 'opacity, transform',
+              backfaceVisibility: 'hidden',
+              transformOrigin: 'center',
+            }}
+          />
+        );
+      })}
+
+      {/* DERİNLİK + KONTRAST */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-[#0a0016]/55 to-[#16002a]/80 pointer-events-none" />
+
+      {/* SOFT FILMIC LIGHT (ÇİZGİSİZ) */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url(${images[currentImage]})`,
-          opacity: 1,
-          zIndex: 1,
+          background:
+            'radial-gradient(circle at 50% 45%, rgba(255,220,255,0.035), transparent 70%)',
+          mixBlendMode: 'soft-light',
         }}
       />
-
-      {/* 🔥 ÜST KATMAN - GELECEK RESİM (ÜZERİNDEN GEÇER) */}
-      <div
-        className={`
-          absolute inset-0 bg-cover bg-center bg-no-repeat 
-          transition-all duration-1500 ease-in-out
-        `}
-        style={{
-          backgroundImage: `url(${images[nextImage]})`,
-          opacity: isTransitioning ? 1 : 0,
-          zIndex: 2,
-          transform: isTransitioning ? 'scale(1.02)' : 'scale(1)',
-        }}
-      />
-
-      {/* 🔥 GEÇİŞ EFEKTİ - PARLA */}
-      {isTransitioning && (
-        <div className="absolute inset-0 z-3 bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-pink-500/10 animate-pulse" />
-      )}
     </div>
   );
 }

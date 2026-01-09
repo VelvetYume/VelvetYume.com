@@ -1,9 +1,10 @@
 // app/page.tsx - MAIN PAGE - SINGLE IMAGE
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gamesData from '@/data/games.json';
+
 
 interface Game {
   id: string;
@@ -15,11 +16,45 @@ interface Game {
   img?: string;
 }
 
+
 export default function Home() {
-  const [filter, setFilter] = useState<string>('All');
+  const [filters, setFilters] = useState<string[]>([]);
   const [osFilter, setOsFilter] = useState<string>('All');
   const [search, setSearch] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const toggleCategory = (category: string) => {
+  if (category === 'All') {
+    setFilters([]);
+    setCurrentPage(1);
+    return;
+  }
+
+  setFilters(prev => {
+    const exists = prev.includes(category);
+    const updated = exists
+      ? prev.filter(c => c !== category)
+      : [...prev, category];
+
+    return updated;
+  });
+
+  setCurrentPage(1);
+};
+
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const categoryFromUrl = params.get('category');
+
+    if (categoryFromUrl) {
+  setFilters([categoryFromUrl]); // ✅
+  setCurrentPage(1);
+  }
+
+  }, []);
 
   const categories = [
     'All', '2D','3D', 'Adventure', 'Anal Sex','Animation', 'Big Tits', 'Blowjob', 'Censored', 'Uncensored',
@@ -29,11 +64,7 @@ export default function Home() {
   ];
 
   const itemsPerPage = 10;
-
-  const updateFilter = (newFilter: string) => {
-    setFilter(newFilter);
-    setCurrentPage(1);
-  };
+  
 
   const updateOsFilter = (newOsFilter: string) => {
     setOsFilter(newOsFilter);
@@ -62,8 +93,11 @@ export default function Home() {
 
   // FILTERING
   const filteredGames = sortedGames.filter((game: Game) => {
-    const matchesCategory = filter === 'All' ||
-      (game.category && Array.isArray(game.category) && game.category.includes(filter));
+    const matchesCategory =
+  filters.length === 0 ||
+  (game.category &&
+    filters.every(cat => game.category!.includes(cat)));
+
 
     const matchesOS =
       osFilter === 'All' ||
@@ -157,22 +191,28 @@ export default function Home() {
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => updateFilter(cat)}
+                onClick={() => toggleCategory(cat)}
                 className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 whitespace-nowrap ${
-                  filter === cat
+                  (cat === 'All' && filters.length === 0) || filters.includes(cat)
                     ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
                     : 'bg-black/30 text-gray-300 hover:bg-white/10 border border-white/20 hover:border-white/40'
                 }`}
               >
                 {cat}
               </button>
+
             ))}
           </div>
 
           <div className="text-center">
             <p className="text-gray-300 text-lg font-semibold">
               {filteredGames.length} games found
-              {filter !== 'All' && <span className="ml-4 text-pink-400">• {filter}</span>}
+              {filters.length > 0 && (
+  <span className="ml-4 text-pink-400">
+    • {filters.join(', ')}
+  </span>
+    )}
+
             </p>
           </div>
         </div>
@@ -241,7 +281,7 @@ export default function Home() {
             </p>
             <button 
               onClick={() => {
-                setFilter('All');
+                setFilters([]);
                 setOsFilter('All');
                 setSearch('');
                 setCurrentPage(1);

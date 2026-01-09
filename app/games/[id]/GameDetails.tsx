@@ -1,29 +1,12 @@
+// components/GameDetails.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { Game } from '@/types/game'; 
 
-interface Game {
-  id: string;
-  title: string;
-  category: string[];
-  type: string;
-  os: string;
-  img: string;
-  description: string;
-  developer: string;
-  publisher: string;
-  version: string;
-  screenshots: string[];
-  download: Record<string, Record<string, string>>;
-}
-
-interface Props {
-  game: Game;
-}
-
-export default function GameDetails({ game }: Props) {
+export default function GameDetails({ game }: { game: Game }) {
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
   const [currentScreenshotIndex, setCurrentScreenshotIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
@@ -31,7 +14,7 @@ export default function GameDetails({ game }: Props) {
   useEffect(() => {
     if (!isAutoPlay || !game.screenshots || game.screenshots.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentScreenshotIndex((prev) => (prev + 1) % game.screenshots.length);
+      setCurrentScreenshotIndex((prev) => (prev + 1) % (game.screenshots?.length ?? 0));
     }, 4000);
     return () => clearInterval(interval);
   }, [isAutoPlay, game.screenshots?.length]);
@@ -39,13 +22,13 @@ export default function GameDetails({ game }: Props) {
   const goToPrevious = () => {
     setIsAutoPlay(false);
     setCurrentScreenshotIndex((prev) =>
-      prev === 0 ? game.screenshots.length - 1 : prev - 1
+      prev === 0 ? (game.screenshots?.length ?? 0) - 1 : prev - 1
     );
   };
 
   const goToNext = () => {
     setIsAutoPlay(false);
-    setCurrentScreenshotIndex((prev) => (prev + 1) % game.screenshots.length);
+    setCurrentScreenshotIndex((prev) => (prev + 1) % (game.screenshots?.length ?? 0));
   };
 
   const goToIndex = (index: number) => {
@@ -55,22 +38,22 @@ export default function GameDetails({ game }: Props) {
 
   const router = useRouter();
 
-  const availableOS = Object.keys(game.download);
+  const availableOS = Object.keys(game.download ?? {});
   const hasWindows = availableOS.includes('Windows');
   const hasAndroid = availableOS.includes('Android');
 
   const getDownloadLinksForOS = (os: string) => {
-    return game.download[os] || {};
-  };
+  const download = game.download ?? {}; // ← boş obje
+  return download[os as keyof typeof download] ?? {}; // ← kırmızı kalkar (os'u anahtar olarak zorla)
+};
 
   const handleOSClick = (os: string) => {
     setSelectedOS(os === selectedOS ? null : os);
   };
 
   const handleTagClick = (tag: string) => {
-    router.push(`/?filter=${encodeURIComponent(tag)}`);
-  };
-
+  router.push(`/?category=${encodeURIComponent(tag)}#games`);
+};
   const platformConfig = {
     'Gofile': { icon: '📁', color: 'from-blue-500 to-cyan-600', bg: 'from-blue-500/20 to-cyan-600/20' },
     'Pixeldrain': { icon: '🖥️', color: 'from-purple-500 to-pink-600', bg: 'from-purple-500/20 to-pink-600/20' },
@@ -83,18 +66,18 @@ export default function GameDetails({ game }: Props) {
 
   return (
     <main className="min-h-screen bg-[#0d001f] text-pink-400 p-4 md:p-8 max-w-7xl mx-auto">
-      
       {/* ANA RESİM */}
-      <div className="mb-12 relative w-full h-[55vh] min-h-[420px] max-h-[750px] rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-900/80 bg-gradient-to-br from-black/50 to-transparent group">
-        <Image
-          src={game.img}
-          alt={game.title}
-          fill
-          className="object-contain transition-all duration-1000 ease-in-out group-hover:scale-105 brightness-105 contrast-110"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-      </div>
+      <div className="mb-12 relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-900/80 bg-black group">
+  <Image
+    src={game.img ?? '/images/placeholder.jpg'}
+    alt={game.title}
+    fill
+    className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 brightness-105 contrast-110"
+    priority
+  />
+  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+</div>
+
 
       {/* OYUN BİLGİLERİ */}
       <div className="bg-gradient-to-br from-[#1a001f]/95 via-[#0d001f]/90 to-[#1a001f]/95 backdrop-blur-2xl rounded-3xl shadow-2xl p-8 md:p-12 mb-12 border border-pink-500/30">
@@ -116,27 +99,27 @@ export default function GameDetails({ game }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 text-center md:text-left">
-  <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
-    <span className="block text-pink-400 font-bold mb-2">Developer</span>
-    <span className="text-white font-semibold">{game.developer}</span>
-  </div>
-  <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
-    <span className="block text-pink-400 font-bold mb-2">Publisher</span>
-    <span className="text-white font-semibold">{game.publisher}</span>
-  </div>
-  <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
-    <span className="block text-pink-400 font-bold mb-2">Version</span>
-    <span className="text-pink-300 font-bold text-lg">{game.version}</span>
-  </div>
-  {game.languages && game.languages.length > 0 && (
-    <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
-      <span className="block text-pink-400 font-bold mb-2">Languages</span>
-      <span className="text-white font-semibold">
-        {game.languages.join(", ")}
-      </span>
-    </div>
-  )}
-</div>
+          <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
+            <span className="block text-pink-400 font-bold mb-2">Developer</span>
+            <span className="text-white font-semibold">{game.developer}</span>
+          </div>
+          <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
+            <span className="block text-pink-400 font-bold mb-2">Publisher</span>
+            <span className="text-white font-semibold">{game.publisher}</span>
+          </div>
+          <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
+            <span className="block text-pink-400 font-bold mb-2">Version</span>
+            <span className="text-pink-300 font-bold text-lg">{game.version}</span>
+          </div>
+          {game.languages && game.languages.length > 0 && (
+            <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-pink-500/20">
+              <span className="block text-pink-400 font-bold mb-2">Languages</span>
+              <span className="text-white font-semibold">
+                {game.languages.join(", ")}
+              </span>
+            </div>
+          )}
+        </div>
 
         {game.category && game.category.length > 0 && (
           <div className="text-center mb-12">
@@ -167,7 +150,7 @@ export default function GameDetails({ game }: Props) {
                 className={`group/os flex flex-col items-center justify-center gap-4 p-8 rounded-3xl shadow-2xl transform transition-all duration-700 relative overflow-hidden ${
                   selectedOS === 'Windows'
                     ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 scale-105 shadow-blue-500/25 border-2 border-blue-400/80'
-                    : 'bg-gradient-to-br from-blue-600/20 via-indigo-600/20 to-purple-600/20 hover:from-blue-600/40 hover:via-indigo-600/40 hover:to-purple-600/40 text-white/80 hover:text-white border-2 border-blue-500/40 hover:border-blue-500/70 hover:scale-105'
+                    : 'bg-gradient-to-br from-blue-600/20 via-indigo-600/20 to-purple-600/20 hover:from-blue-600/40 via-indigo-600/40 to-purple-600/40 text-white/80 hover:text-white border-2 border-blue-500/40 hover:border-blue-500/70 hover:scale-105'
                 }`}
               >
                 <div className="flex items-center gap-4">
@@ -195,7 +178,7 @@ export default function GameDetails({ game }: Props) {
                 className={`group/os flex flex-col items-center justify-center gap-4 p-8 rounded-3xl shadow-2xl transform transition-all duration-700 relative overflow-hidden ${
                   selectedOS === 'Android'
                     ? 'bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 scale-105 shadow-green-500/25 border-2 border-green-400/80'
-                    : 'bg-gradient-to-br from-green-600/20 via-emerald-600/20 to-teal-600/20 hover:from-green-600/40 hover:via-emerald-600/40 hover:to-teal-600/40 text-white/80 hover:text-white border-2 border-green-500/40 hover:border-green-500/70 hover:scale-105'
+                    : 'bg-gradient-to-br from-green-600/20 via-emerald-600/20 to-teal-600/20 hover:from-green-600/40 via-emerald-600/40 to-teal-600/40 text-white/80 hover:text-white border-2 border-green-500/40 hover:border-green-500/70 hover:scale-105'
                 }`}
               >
                 <div className="flex items-center gap-4">
@@ -230,7 +213,7 @@ export default function GameDetails({ game }: Props) {
                   return (
                     <a
                       key={platform}
-                      href={link}
+                       href={(link ?? '#') as string} // ← kırmızı çizgi kalkar (null ise #)
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`group/link flex flex-col items-center gap-4 p-6 rounded-2xl shadow-xl transform hover:scale-105 transition-all duration-500 relative overflow-hidden border-2 border-pink-500/30 hover:border-${config.color.split('-')[0]}-500/60 bg-gradient-to-br ${config.bg} hover:${config.color}/40`}
@@ -245,6 +228,7 @@ export default function GameDetails({ game }: Props) {
                       <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent -translate-x-full group-hover/link:translate-x-full transition-transform duration-1000" />
                       <div className="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full opacity-0 group-hover/link:opacity-20 blur-xl animate-pulse" />
                     </a>
+                    
                   );
                 })}
               </div>
@@ -254,9 +238,9 @@ export default function GameDetails({ game }: Props) {
       </div>
 
       {/* SCREENSHOTS */}
-      {game.screenshots && game.screenshots.length > 0 && (
-        <div className="mb-16">
-          <h2 className="text-5xl font-bold text-pink-300 mb-12 text-center neon-text">Screenshots</h2>
+      <div className="mb-16">
+        <h2 className="text-5xl font-bold text-pink-300 mb-12 text-center neon-text">Screenshots</h2>
+        {game.screenshots && game.screenshots.length > 0 ? (
           <div className="relative max-w-7xl mx-auto">
             <div className="relative h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-800/80 bg-black/50 group">
               
@@ -265,15 +249,21 @@ export default function GameDetails({ game }: Props) {
                 style={{ transform: `translateX(-${currentScreenshotIndex * 100}%)` }}
               >
                 {game.screenshots.map((screenshot, index) => (
-                  <div key={index} className="relative w-full h-full flex-shrink-0">
-                    <Image
-                      src={screenshot}
-                      alt={`${game.title} screenshot ${index + 1}`}
-                      fill
-                      className="object-cover transition-all duration-700 ease-in-out group-hover:scale-105"
-                      priority={index === 0}
-                    />
-                  </div>
+                 <div
+  key={index}
+  className="relative w-full aspect-video flex-shrink-0 rounded-2xl overflow-hidden bg-black"
+>
+  <Image
+    src={screenshot}
+    alt={`${game.title} screenshot ${index + 1}`}
+    fill
+    className="object-cover object-center transition-transform duration-700 ease-out"
+    priority={index === 0}
+  />
+</div>
+
+
+
                 ))}
               </div>
               
@@ -313,12 +303,17 @@ export default function GameDetails({ game }: Props) {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-2xl text-gray-400">Bu oyuna ait screenshot bulunamadı.</p>
+          </div>
+        )}
+      </div>
 
+      {/* BACK TO HOME */}
       <div className="text-center py-16">
         <Link
-          href="/"
+          href="/#games"
           className="group inline-flex items-center gap-4 px-10 py-4 bg-gradient-to-r from-pink-500/20 via-purple-600/20 to-pink-600/20 hover:from-pink-500/40 hover:via-purple-600/40 hover:to-pink-600/40 text-pink-300 hover:text-white font-bold text-xl rounded-full border-2 border-pink-500/40 hover:border-pink-500/70 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-500"
         >
           <svg className="w-6 h-6 group-hover:-translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,16 +322,6 @@ export default function GameDetails({ game }: Props) {
           Back to Home
         </Link>
       </div>
-
-      <style jsx>{`
-        .neon-text {
-          text-shadow: 
-            0 0 20px #ff2bff,
-            0 0 40px #ff2bff,
-            0 0 60px #ff2bff,
-            0 0 100px #8b008b;
-        }
-      `}</style>
     </main>
   );
 }
