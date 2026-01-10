@@ -1,6 +1,7 @@
 // app/layout.tsx - ANIMASYON COMPONENT'E TAŞINDI
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Analytics } from "@vercel/analytics/next";
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from './AnimatedBackground';
 import './globals.css';
@@ -76,6 +77,8 @@ export default function RootLayout({
         {/* 📱 İçerik */}
         <main className="relative z-10 pt-20 pb-12 min-h-screen">
           {children}
+           {/* Vercel Analytics */}
+    <Analytics />
         </main>
       </body>
     </html>
