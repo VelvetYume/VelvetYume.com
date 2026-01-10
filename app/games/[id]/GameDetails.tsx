@@ -10,6 +10,9 @@ export default function GameDetails({ game }: { game: Game }) {
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
   const [currentScreenshotIndex, setCurrentScreenshotIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
 
   useEffect(() => {
     if (!isAutoPlay || !game.screenshots || game.screenshots.length === 0) return;
@@ -25,6 +28,31 @@ export default function GameDetails({ game }: { game: Game }) {
       prev === 0 ? (game.screenshots?.length ?? 0) - 1 : prev - 1
     );
   };
+  const minSwipeDistance = 50;
+
+const onTouchStart = (e: React.TouchEvent) => {
+  setTouchEndX(null);
+  setTouchStartX(e.targetTouches[0].clientX);
+};
+
+const onTouchMove = (e: React.TouchEvent) => {
+  setTouchEndX(e.targetTouches[0].clientX);
+};
+
+const onTouchEnd = () => {
+  if (!touchStartX || !touchEndX) return;
+
+  const distance = touchStartX - touchEndX;
+
+  if (distance > minSwipeDistance) {
+    // swipe left → next
+    goToNext();
+  } else if (distance < -minSwipeDistance) {
+    // swipe right → previous
+    goToPrevious();
+  }
+};
+
 
   const goToNext = () => {
     setIsAutoPlay(false);
@@ -242,7 +270,13 @@ export default function GameDetails({ game }: { game: Game }) {
         <h2 className="text-5xl font-bold text-pink-300 mb-12 text-center neon-text">Screenshots</h2>
         {game.screenshots && game.screenshots.length > 0 ? (
           <div className="relative max-w-7xl mx-auto">
-            <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-800/80 bg-black">
+            <div
+              className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-800/80 bg-black touch-pan-y"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+                >
+
               <div className="flex h-full w-full transition-transform duration-1000 ease-in-out"
                 style={{ transform: `translateX(-${currentScreenshotIndex * 100}%)` }}
               >
