@@ -242,27 +242,24 @@ export default function GameDetails({ game }: { game: Game }) {
         <h2 className="text-5xl font-bold text-pink-300 mb-12 text-center neon-text">Screenshots</h2>
         {game.screenshots && game.screenshots.length > 0 ? (
           <div className="relative max-w-7xl mx-auto">
-            <div className="relative h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-800/80 bg-black/50 group">
-              
-              <div 
-                className="flex h-full w-full transition-transform duration-1000 ease-in-out"
+            <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-800/80 bg-black">
+              <div className="flex h-full w-full transition-transform duration-1000 ease-in-out"
                 style={{ transform: `translateX(-${currentScreenshotIndex * 100}%)` }}
               >
                 {game.screenshots.map((screenshot, index) => (
                  <div
-  key={index}
-  className="relative w-full aspect-video flex-shrink-0 rounded-2xl overflow-hidden bg-black"
->
-  <Image
-  src={screenshot}
-  alt={`${game.title} screenshot ${index + 1}`}
-  fill
-  className="object-contain transition-transform duration-500"
-  sizes="(max-width: 768px) 100vw, 80vw"
-  priority={index === 0}
-/>
+                    key={index}
+                    className="relative w-full h-full flex-shrink-0 overflow-hidden bg-black"
+                      >
+                    <Image
+                  src={screenshot}
+                  alt={`${game.title} screenshot ${index + 1}`}
+                    fill
+                  className="object-cover object-center"
+                    priority={index === 0}
+                    />
+                      </div>
 
-</div>
 
 
 
