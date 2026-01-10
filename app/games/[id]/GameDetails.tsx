@@ -254,12 +254,14 @@ export default function GameDetails({ game }: { game: Game }) {
   className="relative w-full aspect-video flex-shrink-0 rounded-2xl overflow-hidden bg-black"
 >
   <Image
-    src={screenshot}
-    alt={`${game.title} screenshot ${index + 1}`}
-    fill
-    className="object-cover object-center transition-transform duration-700 ease-out"
-    priority={index === 0}
-  />
+  src={screenshot}
+  alt={`${game.title} screenshot ${index + 1}`}
+  fill
+  className="object-contain transition-transform duration-500"
+  sizes="(max-width: 768px) 100vw, 80vw"
+  priority={index === 0}
+/>
+
 </div>
 
 
