@@ -12,6 +12,22 @@ export default function GameDetails({ game }: { game: Game }) {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
+  const [showAllTags, setShowAllTags] = useState(false);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const router = useRouter();
+
+const [returnPage, setReturnPage] = useState<number | null>(null);
+
+useEffect(() => {
+  if (typeof window === 'undefined') return;
+
+  const params = new URLSearchParams(window.location.search);
+  const pageFromUrl = params.get('page');
+
+  if (pageFromUrl) {
+    setReturnPage(Number(pageFromUrl));
+  }
+}, []);
 
 
   useEffect(() => {
@@ -34,6 +50,7 @@ const onTouchStart = (e: React.TouchEvent) => {
   setTouchEndX(null);
   setTouchStartX(e.targetTouches[0].clientX);
 };
+
 
 const onTouchMove = (e: React.TouchEvent) => {
   setTouchEndX(e.targetTouches[0].clientX);
@@ -64,7 +81,6 @@ const onTouchEnd = () => {
     setCurrentScreenshotIndex(index);
   };
 
-  const router = useRouter();
 
   const availableOS = Object.keys(game.download ?? {});
   const hasWindows = availableOS.includes('Windows');
@@ -80,8 +96,10 @@ const onTouchEnd = () => {
   };
 
   const handleTagClick = (tag: string) => {
+  setActiveTag(tag);
   router.push(`/?category=${encodeURIComponent(tag)}#games`);
 };
+
   const platformConfig = {
     'Gofile': { icon: '📁', color: 'from-blue-500 to-cyan-600', bg: 'from-blue-500/20 to-cyan-600/20' },
     'Pixeldrain': { icon: '🖥️', color: 'from-purple-500 to-pink-600', bg: 'from-purple-500/20 to-pink-600/20' },
@@ -97,12 +115,14 @@ const onTouchEnd = () => {
       {/* ANA RESİM */}
       <div className="mb-12 relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-900/80 bg-black group">
   <Image
-    src={game.img ?? '/images/placeholder.jpg'}
-    alt={game.title}
-    fill
-    className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 brightness-105 contrast-110"
-    priority
-  />
+  src={game.img ?? '/images/placeholder.jpg'}
+  alt={game.title}
+  fill
+  sizes="(max-width: 768px) 100vw, 60vw"
+  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105 brightness-105 contrast-110"
+  priority
+/>
+
   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 </div>
 
@@ -150,35 +170,82 @@ const onTouchEnd = () => {
         </div>
 
         {game.category && game.category.length > 0 && (
-          <div className="text-center mb-12">
-            <p className="text-2xl font-bold text-pink-300 mb-6">Tags</p>
-            <div
-  className="
-    flex md:flex-wrap
-    overflow-x-auto md:overflow-visible
-    gap-3
-    px-2
-    justify-start md:justify-center
-    no-scrollbar
-    max-w-6xl mx-auto
-  "
+  <div className="mb-12">
+    <p className="text-2xl font-bold text-pink-300 mb-4 text-center md:text-left">
+      Tags
+    </p>
+
+    <div
+  className={`
+    relative
+    flex flex-wrap gap-3 justify-center md:justify-start
+    transition-all duration-500
+    ${!showAllTags ? 'max-h-[96px] overflow-hidden' : ''}
+  `}
 >
 
-              {game.category.map((tag, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleTagClick(tag)}
-                 className="group/tag px-6 py-3 bg-gradient-to-r from-purple-500/20 via-pink-600/20 to-purple-500/20 border-2 border-purple-500/40 rounded-full text-sm md:text-base font-semibold text-purple-300 shadow-lg backdrop-blur-sm hover:scale-110 hover:bg-gradient-to-r hover:from-purple-500/40 hover:via-pink-600/40 hover:to-purple-500/40 hover:border-purple-500/70 hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer whitespace-nowrap flex-shrink-0"
 
-                  title={`View games in "${tag}" category`}
-                >
-                  <span className="relative z-10">{tag}</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full blur opacity-0 group-hover/tag:opacity-100 transition-opacity duration-500 -z-10" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+      {game.category.map((cat, idx) => {
+  const isActive = activeTag === cat;
+
+  return (
+    <button
+      key={idx}
+      type="button"
+      onClick={() => handleTagClick(cat)}
+      className={`
+        relative px-5 py-2.5
+        rounded-full text-sm font-semibold
+        transition-all duration-300
+        whitespace-nowrap
+
+        ${isActive
+          ? `
+            text-white
+            bg-gradient-to-r from-pink-500 to-purple-600
+            shadow-lg shadow-pink-500/40
+            scale-105
+          `
+          : `
+            text-pink-200
+            bg-gradient-to-r from-pink-500/20 to-purple-500/20
+            border border-pink-500/40
+            hover:text-white
+            hover:from-pink-500/40 hover:to-purple-500/40
+            hover:shadow-md hover:shadow-pink-500/30
+          `
+        }
+        active:scale-95
+      `}
+    >
+      {cat}
+
+      {/* glow */}
+      {isActive && (
+        <span className="absolute inset-0 rounded-full blur-md bg-pink-500/40 -z-10" />
+      )}
+    </button>
+  );
+})}
+
+
+
+    </div>
+      
+
+    {/* MOBİLDE AÇ / KAPA */}
+    <div className="md:hidden mt-4 text-center">
+  <button
+    onClick={() => setShowAllTags(prev => !prev)}
+    className="text-pink-400 font-semibold underline hover:text-pink-300 transition"
+  >
+    {showAllTags ? 'show less' : 'show all tags'}
+  </button>
+</div>
+  </div>
+)}
+
+
 
         <div className="text-center space-y-8">
           <h2 className="text-4xl font-bold text-pink-300">Downloads</h2>
@@ -298,12 +365,14 @@ const onTouchEnd = () => {
                     className="relative w-full h-full flex-shrink-0 overflow-hidden bg-black"
                       >
                     <Image
-                  src={screenshot}
-                  alt={`${game.title} screenshot ${index + 1}`}
-                    fill
-                  className="object-cover object-center"
-                    priority={index === 0}
-                    />
+  src={screenshot}
+  alt={`${game.title} screenshot ${index + 1}`}
+  fill
+  sizes="(max-width: 768px) 100vw, 80vw"
+  className="object-cover object-center transition-transform duration-700 ease-out"
+  priority={index === 0}
+/>
+
                       </div>
 
 
@@ -357,15 +426,34 @@ const onTouchEnd = () => {
 
       {/* BACK TO HOME */}
       <div className="text-center py-16">
-        <Link
-          href="/#games"
-          className="group inline-flex items-center gap-4 px-10 py-4 bg-gradient-to-r from-pink-500/20 via-purple-600/20 to-pink-600/20 hover:from-pink-500/40 hover:via-purple-600/40 hover:to-pink-600/40 text-pink-300 hover:text-white font-bold text-xl rounded-full border-2 border-pink-500/40 hover:border-pink-500/70 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-500"
-        >
-          <svg className="w-6 h-6 group-hover:-translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
-          Back to Home
-        </Link>
+        <button
+  onClick={() => {
+    const target = returnPage
+      ? `/?page=${returnPage}#games`
+      : '/#games';
+
+    router.push(target);
+  }}
+  className="group inline-flex items-center gap-4 px-10 py-4 rounded-2xl
+             bg-black/40 hover:bg-pink-600 text-white
+             transition-all duration-300"
+>
+  <svg
+    className="w-6 h-6 group-hover:-translate-x-2 transition-transform duration-300"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15.75 19.5L8.25 12l7.5-7.5"
+    />
+  </svg>
+  Back to Home
+</button>
+
       </div>
     </main>
   );

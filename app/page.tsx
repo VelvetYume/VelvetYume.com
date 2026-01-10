@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gamesData from '@/data/games.json';
+import { useSearchParams } from 'next/navigation';
+
 
 
 interface Game {
@@ -22,6 +24,11 @@ export default function Home() {
   const [osFilter, setOsFilter] = useState<string>('All');
   const [search, setSearch] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const searchParams = useSearchParams();
+  const pageFromHome = searchParams.get('page');
+
+
 
   const toggleCategory = (category: string) => {
   if (category === 'All') {
@@ -44,17 +51,26 @@ export default function Home() {
 
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return;
 
-    const params = new URLSearchParams(window.location.search);
-    const categoryFromUrl = params.get('category');
+  const params = new URLSearchParams(window.location.search);
 
-    if (categoryFromUrl) {
-  setFilters([categoryFromUrl]); // ✅
-  setCurrentPage(1);
+  const categoryFromUrl = params.get('category');
+  const pageFromUrl = params.get('page');
+
+  if (categoryFromUrl) {
+    setFilters([categoryFromUrl]);
   }
 
-  }, []);
+  if (pageFromUrl) {
+    const pageNum = Number(pageFromUrl);
+    if (!isNaN(pageNum)) {
+      setCurrentPage(pageNum);
+    }
+  }
+}, []);
+
+
 
   const categories = [
     'All', '2D','3D', 'Adventure', 'Anal Sex','Animation', 'Big Tits', 'Blowjob', 'Censored', 'Uncensored',
@@ -117,8 +133,13 @@ export default function Home() {
   const currentGames = filteredGames.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  setCurrentPage(page);
+
+  const params = new URLSearchParams(window.location.search);
+  params.set('page', String(page));
+
+  window.history.pushState({}, '', `/?${params.toString()}#games`);
+};
 
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -127,6 +148,12 @@ export default function Home() {
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
+useEffect(() => {
+  const gamesSection = document.getElementById('games');
+  if (gamesSection) {
+    gamesSection.scrollIntoView({ behavior: 'smooth' });
+  }
+}, [currentPage]);
 
   return (
     <div className="relative z-20 min-h-screen">
@@ -162,7 +189,17 @@ export default function Home() {
       <section id="games" className="relative z-30 px-6 py-20 max-w-7xl mx-auto w-full">
         
         {/* FILTER PANEL */}
-        <div className="bg-black/60 backdrop-blur-2xl rounded-3xl p-8 mb-12 border border-white/20 shadow-2xl">
+        <div className="
+  bg-black/60
+  md:backdrop-blur-2xl
+  rounded-3xl
+  p-8
+  mb-12
+  border border-white/20
+  shadow-lg
+  md:shadow-2xl
+">
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             <div className="lg:col-span-2">
               <input
@@ -188,14 +225,30 @@ export default function Home() {
           </div>
 
           <div
-className="flex md:flex-wrapoverflow-x-auto md:overflow-visiblejustify-start md:justify-centergap-4mb-10 pb-6border-b border-white/10no-scrollbar"
+  className={`
+    flex flex-wrap justify-center gap-4 mb-10 pb-6 border-b border-white/10
+    transition-all duration-300
+
+    ${!showAllCategories ? 'max-h-[110px] overflow-hidden' : ''}
+
+    md:max-h-none md:overflow-visible
+  `}
 >
+  <div className="md:hidden text-center mb-8">
+  <button
+    onClick={() => setShowAllCategories(prev => !prev)}
+    className="text-pink-400 font-semibold underline"
+  >
+    {showAllCategories ? 'show less' : 'show all categories'}
+  </button>
+</div>
+
 
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => toggleCategory(cat)}
-                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
+                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 whitespace-nowrap ${
                   (cat === 'All' && filters.length === 0) || filters.includes(cat)
                     ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
                     : 'bg-black/30 text-gray-300 hover:bg-white/10 border border-white/20 hover:border-white/40'
@@ -228,19 +281,41 @@ className="flex md:flex-wrapoverflow-x-auto md:overflow-visiblejustify-start md:
             const mainImage = getGameMainImage(gameId, game.img);
 
             return (
-              <Link key={gameId} href={`/games/${encodeURIComponent(gameId)}`} className="group block">
-                <div className="relative bg-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-pink-500/40 overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl shadow-xl h-full">
+              <Link
+  key={gameId}
+  href={`/games/${encodeURIComponent(gameId)}?page=${currentPage}`}
+  className="group block"
+>
+
+                <div className="
+  relative
+  bg-black/60
+  md:backdrop-blur-xl
+  rounded-2xl
+  p-6
+  border border-white/10
+  hover:border-pink-500/40
+  overflow-hidden
+  transition-all duration-500
+  md:hover:scale-105
+  shadow-md
+  md:shadow-xl
+  h-full
+">
+
                   
                   {/* SINGLE IMAGE */}
                   <div className="relative w-full h-52 rounded-xl overflow-hidden mb-6 bg-black/30">
                     <Image 
-                      src={mainImage} 
-                      alt={gameTitle}
-                      width={400}
-                      height={208}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
-                      priority={index < 6}
-                    />
+  src={mainImage} 
+  alt={gameTitle}
+  width={400}
+  height={208}
+  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 20vw"
+  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
+  priority={index < 6}
+/>
+
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
 
@@ -321,9 +396,12 @@ className="flex md:flex-wrapoverflow-x-auto md:overflow-visiblejustify-start md:
                     }`}
                   >
                     {pageNum}
+                    
                   </button>
                 );
+                
               })}
+              
             </div>
             
             <button 
