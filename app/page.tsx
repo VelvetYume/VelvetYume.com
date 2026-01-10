@@ -134,12 +134,8 @@ export default function Home() {
 
   const handlePageChange = (page: number) => {
   setCurrentPage(page);
-
-  const params = new URLSearchParams(window.location.search);
-  params.set('page', String(page));
-
-  window.history.pushState({}, '', `/?${params.toString()}#games`);
 };
+
 
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
