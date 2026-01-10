@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gamesData from '@/data/games.json';
-import { useSearchParams } from 'next/navigation';
 
 
 
@@ -25,8 +24,6 @@ export default function Home() {
   const [search, setSearch] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const searchParams = useSearchParams();
-  const pageFromHome = searchParams.get('page');
 
 
 
