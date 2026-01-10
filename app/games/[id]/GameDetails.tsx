@@ -152,12 +152,24 @@ const onTouchEnd = () => {
         {game.category && game.category.length > 0 && (
           <div className="text-center mb-12">
             <p className="text-2xl font-bold text-pink-300 mb-6">Tags</p>
-            <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
+            <div
+  className="
+    flex md:flex-wrap
+    overflow-x-auto md:overflow-visible
+    gap-3
+    px-2
+    justify-start md:justify-center
+    no-scrollbar
+    max-w-6xl mx-auto
+  "
+>
+
               {game.category.map((tag, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleTagClick(tag)}
-                  className="group/tag px-6 py-3 bg-gradient-to-r from-purple-500/20 via-pink-600/20 to-purple-500/20 border-2 border-purple-500/40 rounded-full text-sm md:text-base font-semibold text-purple-300 shadow-lg backdrop-blur-sm hover:scale-110 hover:bg-gradient-to-r hover:from-purple-500/40 hover:via-pink-600/40 hover:to-purple-500/40 hover:border-purple-500/70 hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer"
+                 className="group/tag px-6 py-3 bg-gradient-to-r from-purple-500/20 via-pink-600/20 to-purple-500/20 border-2 border-purple-500/40 rounded-full text-sm md:text-base font-semibold text-purple-300 shadow-lg backdrop-blur-sm hover:scale-110 hover:bg-gradient-to-r hover:from-purple-500/40 hover:via-pink-600/40 hover:to-purple-500/40 hover:border-purple-500/70 hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer whitespace-nowrap flex-shrink-0"
+
                   title={`View games in "${tag}" category`}
                 >
                   <span className="relative z-10">{tag}</span>

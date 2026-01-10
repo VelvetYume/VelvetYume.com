@@ -187,12 +187,15 @@ export default function Home() {
             </select>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-10 pb-6 border-b border-white/10">
+          <div
+className="flex md:flex-wrapoverflow-x-auto md:overflow-visiblejustify-start md:justify-centergap-4mb-10 pb-6border-b border-white/10no-scrollbar"
+>
+
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => toggleCategory(cat)}
-                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 whitespace-nowrap ${
+                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
                   (cat === 'All' && filters.length === 0) || filters.includes(cat)
                     ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
                     : 'bg-black/30 text-gray-300 hover:bg-white/10 border border-white/20 hover:border-white/40'
