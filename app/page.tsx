@@ -413,6 +413,17 @@ useEffect(() => {
       </section>
 
       <footer className="relative z-30 w-full mt-24 py-12 bg-gradient-to-t from-black via-[#0d001f] to-black/90 backdrop-blur-2xl border-t border-pink-500/20">
+      <p className="mb-3 font-bold text-pink-400 text-lg tracking-wide text-center">
+  🔞 Adult Content Warning
+</p>
+
+<p className="mb-6 text-center text-sm text-gray-300 leading-relaxed max-w-3xl mx-auto">
+  This website contains explicit adult content and is intended for individuals
+  aged 18 years or older only. By accessing this site, you confirm that you are
+  at least 18 years of age and that adult content is legal in your jurisdiction.
+</p>
+
+
         <div className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-300 leading-relaxed">
           <p className="mb-3 font-bold text-pink-400 text-lg tracking-wide">
             Disclaimer
