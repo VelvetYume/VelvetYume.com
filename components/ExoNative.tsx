@@ -8,11 +8,11 @@ export default function ExoNative() {
   }, []);
 
   return (
-    <div className="my-12 flex justify-center">
+    <div className="my-12 flex justify-center w-full">
       <ins
         className="eas6a97888e20"
-        data-zoneid="5824850"
-        style={{ display: 'block' }}
+        data-zoneid="5824860"   // ✅ PANELDEKİYLE AYNI
+        style={{ display: 'block', width: '100%' }}
       />
     </div>
   );
