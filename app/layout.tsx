@@ -67,6 +67,12 @@ export default function RootLayout({
            {/* Vercel Analytics */}
     <Analytics />
         </main>
+                {/* ExoClick Ad Provider – MUST BE LOADED ONCE */}
+        <script
+          async
+          src="https://a.magsrv.com/ad-provider.js"
+        ></script>
+
       </body>
     </html>
   );

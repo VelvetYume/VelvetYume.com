@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gamesData from '@/data/games.json';
+import ExoNative from '@/components/ExoNative';
+
 
 
 
@@ -181,6 +183,9 @@ useEffect(() => {
       {/* GAMES SECTION */}
       <section id="games" className="relative z-30 px-6 py-20 max-w-7xl mx-auto w-full">
         
+         {/* EXOCLICK NATIVE AD */}
+          <ExoNative />
+
         {/* FILTER PANEL */}
         <div className="
   bg-black/60
