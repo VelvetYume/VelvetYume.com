@@ -1,13 +1,10 @@
 'use client';
-
 import { useEffect } from 'react';
 
 export default function ExoNative() {
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // @ts-ignore
-      (window.AdProvider = window.AdProvider || []).push({ serve: {} });
-    }
+    (window as any).AdProvider = (window as any).AdProvider || [];
+    (window as any).AdProvider.push({ serve: {} });
   }, []);
 
   return (

@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/next";
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from './AnimatedBackground';
 import './globals.css';
+import Script from "next/script";
+
 
 const inter = Inter({
   subsets: ['latin'],
@@ -67,11 +69,11 @@ export default function RootLayout({
            {/* Vercel Analytics */}
     <Analytics />
         </main>
-                {/* ExoClick Ad Provider – MUST BE LOADED ONCE */}
-        <script
-          async
-          src="https://a.magsrv.com/ad-provider.js"
-        ></script>
+            <Script
+  src="https://a.magsrv.com/ad-provider.js"
+  strategy="afterInteractive"
+/>
+    
 
       </body>
     </html>
